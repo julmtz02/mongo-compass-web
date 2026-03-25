@@ -1,0 +1,15 @@
+.git
+node_modules
+auth-ui/node_modules
+*.md
+.vscode
+.omc
+src/
+compass/
+images/
+*.test.js
+docker-compose*.yaml
+Caddyfile
+.env*
+.claude
+.github

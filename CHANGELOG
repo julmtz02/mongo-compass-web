@@ -1,0 +1,96 @@
+## 0.3.1 - 2025-11-05
+
+### Added
+
+- CSRF protection in GenAI requests
+
+## 0.3.0 - 2025-10-26
+
+### Added
+
+- GenAI features powered by OpenAI to generate query and aggregation pipeline.
+
+## 0.2.8 - 2025-10-24
+
+### Changed
+
+- Fixed bugs in resolving SRV records for Azure Cosmos DB
+
+## 0.2.7 - 2025-10-19
+
+### Changed
+
+- Fixed bugs in aggregation export
+
+## 0.2.6 - 2025-09-24
+
+### Changed
+
+- Fixed MongoDB SRV Resolving for Azure Cosmos DB
+
+## 0.2.5 - 2025-08-18
+
+### Added
+
+- Added `tlsInsecure` support in configuration for AWS DocumentDB
+
+## 0.2.4 - 2025-07-24
+
+### Changed
+
+- Fixed template root path bug
+
+## 0.2.3 - 2025-07-17
+
+### Added
+
+- Support "Add Data" function.
+
+### Changed
+
+- CSRF protection added to improve security.
+
+## 0.2.2 - 2025-07-10
+
+### Added
+
+- Support "Export Data" function.
+
+### Changed
+
+- Theme "Sync with OS" now aligns with theme setting of the browser.
+
+## 0.2.1 - 2025-06-22
+
+### Added
+
+- Added new cli options `app-name`, `basic-auth-username` and `basic-auth-password`
+- Added theme and default query sort settings on UI.
+
+## 0.2.0 - 2025-06-15
+
+### Changed
+
+- Updated to [MongoDB Compass 1.46.2](https://github.com/mongodb-js/compass/releases/tag/v1.46.2)
+
+- Removed the dependency [@haohanyang/compass-web](http://npmjs.com/package/@haohanyang/compass-web)
+
+- MongoDB connection strings are configured only by arg `mongo-uri` or environment variables, not on UI.
+
+- Replaced Express.js with Fastify
+
+## 0.1.2 - 2025-05-29
+
+### Added
+
+- Support default connection configuration via environment variable `MONGODB_URI`
+
+## 0.1.1 - 2025-01-09
+
+### Changed
+
+- Remove unnecessary files from published npm package
+
+## 0.1.0 - 2025-01-09
+
+Initial release.
