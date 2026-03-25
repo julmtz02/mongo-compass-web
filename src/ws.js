@@ -40,7 +40,7 @@ async function handleConnection(fastify, socket, req) {
 
   let mongoSocket;
 
-  socket.on('message', (message) => {
+  socket.on('message', async (message) => {
     if (mongoSocket) {
       mongoSocket.write(decodeMessage(message), 'binary');
       return;
@@ -50,7 +50,7 @@ async function handleConnection(fastify, socket, req) {
     const { tls: useSecureConnection, ...connectOptions } = decodeMessage(message);
 
     // SSRF protection
-    const allowedHosts = buildAllowedHosts(mongoURIs);
+    const allowedHosts = await buildAllowedHosts(mongoURIs, fastify.connectionManager);
     if (!validateHost(connectOptions.host, allowedHosts)) {
       req.log.error('SSRF blocked: %s', connectOptions.host);
       socket.close(1008, 'Host not allowed');
