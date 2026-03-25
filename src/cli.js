@@ -23,7 +23,7 @@ function readCliArgs() {
     .options('host', {
       type: 'string',
       description: 'Host to run the server on',
-      default: 'localhost',
+      default: '0.0.0.0',
     })
     .options('org-id', {
       type: 'string',
