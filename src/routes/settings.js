@@ -18,7 +18,7 @@ module.exports = function settingsRoutes(fastify, opts, done) {
   fastify.get('/version', (request, reply) => {
     reply.send({
       version: pkgJson.version,
-      source: `https://github.com/haohanyang/compass-web/tree/v${pkgJson.version}`,
+      source: `https://github.com/julmtz02/mongo-compass-web/tree/v${pkgJson.version}`,
     });
   });
 

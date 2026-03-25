@@ -325,5 +325,5 @@ These Compass Desktop features are not available in the web version:
 ## Credits
 
 - [MongoDB Compass](https://github.com/mongodb-js/compass) — upstream UI components
-- [compass-web](https://github.com/haohanyang/compass-web) by Haohan Yang — original web wrapper
+- Inspired by the compass-web concept of running MongoDB Compass in a browser
 - Security hardening, user management system, and Docker optimization by this fork

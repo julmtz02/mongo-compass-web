@@ -16,15 +16,15 @@
     "start": "node app.js",
     "test": "mocha"
   },
-  "author": "Haohan Yang",
+  "author": "julmtz02",
   "license": "SSPL",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/haohanyang/compass-web.git"
+    "url": "git+https://github.com/julmtz02/mongo-compass-web.git"
   },
-  "homepage": "https://github.com/haohanyang/compass-web#readme",
+  "homepage": "https://github.com/julmtz02/mongo-compass-web#readme",
   "bugs": {
-    "url": "https://github.com/haohanyang/compass-web/issues"
+    "url": "https://github.com/julmtz02/mongo-compass-web/issues"
   },
   "description": "MongoDB Compass that runs on a browser",
   "dependencies": {

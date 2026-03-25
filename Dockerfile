@@ -1,15 +1,19 @@
-FROM node:22-alpine AS builder
+FROM node:22-slim AS builder
 
-RUN apk add --no-cache python3 make g++ git bash
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3 make g++ git bash ca-certificates libkrb5-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 COPY . .
 
-# Clone compass dependency (submodule may not work in shallow clones)
+# Clone compass dependency
 RUN if [ ! -d "compass/.git" ]; then \
       rm -rf compass && \
-      git clone --depth 1 --single-branch https://github.com/haohanyang/compass.git compass; \
+      git clone --depth 1 --single-branch https://github.com/mongodb-js/compass.git compass; \
     fi
+
+# Bootstrap compass (install deps + copy compass-import-export)
 RUN bash bootstrap.sh
 
 # Install project dependencies
@@ -22,18 +26,19 @@ RUN ELECTRON_OVERRIDE_DIST_PATH=/dev/null ELECTRON_SKIP_BINARY_DOWNLOAD=1 \
 RUN NODE_ENV=production pnpm run build-server:production
 
 # Build auth UI (React + Tailwind)
-FROM node:22-alpine AS auth
+FROM node:22-slim AS auth
+RUN apt-get update && apt-get install -y --no-install-recommends python3 make g++ && rm -rf /var/lib/apt/lists/*
 WORKDIR /build/auth-ui
 COPY auth-ui/package.json auth-ui/package-lock.json* ./
 RUN npm install
 COPY auth-ui/ ./
 RUN mkdir -p /build/src/static && npm run build
-# Output: /build/src/static/auth/
 
 # Final runtime image
-FROM node:22-alpine
+FROM node:22-slim
 
-RUN apk add --no-cache wget
+RUN apt-get update && apt-get install -y --no-install-recommends wget ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
