@@ -1,18 +1,24 @@
 'use strict';
 
 const { requireRole } = require('../middleware/require-role');
+const { getSetting, setSetting, getAllSettings } = require('../db');
 const pkgJson = require('../../package.json');
 
 module.exports = function settingsRoutes(fastify, opts, done) {
   const args = fastify.args;
 
-  const settings = {
-    enableGenAIFeatures: args.enableGenAiFeatures,
-    enableGenAISampleDocumentPassing: args.enableGenAiSampleDocuments,
-  };
-
-  if (args.enableEditConnections) {
-    settings.enableCreatingNewConnections = true;
+  // Load persisted settings, merge with defaults from CLI args
+  function getSettings() {
+    const persisted = getAllSettings();
+    return {
+      enableGenAIFeatures: persisted.enableGenAIFeatures ?? args.enableGenAiFeatures,
+      enableGenAISampleDocumentPassing: persisted.enableGenAISampleDocumentPassing ?? args.enableGenAiSampleDocuments,
+      enableCreatingNewConnections: args.enableEditConnections || false,
+      optInDataExplorerGenAIFeatures: persisted.optInDataExplorerGenAIFeatures ?? false,
+      theme: persisted.theme ?? 'DARK',
+      defaultSort: persisted.defaultSort ?? null,
+      ...persisted,
+    };
   }
 
   fastify.get('/version', (request, reply) => {
@@ -31,6 +37,7 @@ module.exports = function settingsRoutes(fastify, opts, done) {
       return reply.status(404).send({ message: 'Project not found' });
     }
 
+    const settings = getSettings();
     reply.send({
       orgId: args.orgId,
       projectId: args.projectId,
@@ -41,7 +48,7 @@ module.exports = function settingsRoutes(fastify, opts, done) {
         enableGenAIFeaturesAtlasProject: settings.enableGenAIFeatures,
         enableGenAISampleDocumentPassing: settings.enableGenAISampleDocumentPassing,
         enableGenAISampleDocumentPassingOnAtlasProject: settings.enableGenAISampleDocumentPassing,
-        optInDataExplorerGenAIFeatures: settings.optInDataExplorerGenAIFeatures ?? false,
+        optInDataExplorerGenAIFeatures: settings.optInDataExplorerGenAIFeatures,
         cloudFeatureRolloutAccess: {
           GEN_AI_COMPASS: settings.enableGenAIFeatures,
         },
@@ -50,21 +57,19 @@ module.exports = function settingsRoutes(fastify, opts, done) {
   });
 
   fastify.get('/settings', (request, reply) => {
-    reply.send(settings);
+    reply.send(getSettings());
   });
 
-  fastify.post(
-    '/settings/optInDataExplorerGenAIFeatures',
-    { preHandler: requireRole('admin') },
-    (request, reply) => {
-      const { value } = request.body || {};
-      if (typeof value !== 'boolean') {
-        return reply.status(400).send({ error: 'value must be a boolean' });
-      }
-      settings.optInDataExplorerGenAIFeatures = value;
-      reply.send({ ok: true });
+  // Generic settings update — persists any key/value pair
+  fastify.post('/settings/:key', (request, reply) => {
+    const { key } = request.params;
+    const { value } = request.body || {};
+    if (value === undefined) {
+      return reply.status(400).send({ error: 'value is required' });
     }
-  );
+    setSetting(key, value);
+    reply.send({ ok: true });
+  });
 
   done();
 };

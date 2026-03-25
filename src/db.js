@@ -62,6 +62,11 @@ function initSchema() {
       value TEXT NOT NULL
     );
 
+    CREATE TABLE IF NOT EXISTS app_settings (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL
+    );
+
     CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id);
     CREATE INDEX IF NOT EXISTS idx_sessions_expires ON sessions(expires_at);
     CREATE INDEX IF NOT EXISTS idx_permissions_user ON connection_permissions(user_id);
@@ -214,6 +219,29 @@ function closeDb() {
   }
 }
 
+// ─── App Settings ───
+function getSetting(key) {
+  const d = getDb();
+  const row = d.prepare('SELECT value FROM app_settings WHERE key = ?').get(key);
+  if (!row) return undefined;
+  try { return JSON.parse(row.value); } catch (_) { return row.value; }
+}
+
+function setSetting(key, value) {
+  const d = getDb();
+  d.prepare('INSERT OR REPLACE INTO app_settings (key, value) VALUES (?, ?)').run(key, JSON.stringify(value));
+}
+
+function getAllSettings() {
+  const d = getDb();
+  const rows = d.prepare('SELECT key, value FROM app_settings').all();
+  const result = {};
+  for (const row of rows) {
+    try { result[row.key] = JSON.parse(row.value); } catch (_) { result[row.key] = row.value; }
+  }
+  return result;
+}
+
 module.exports = {
   getDb,
   isFirstRun,
@@ -231,5 +259,8 @@ module.exports = {
   cleanExpiredSessions,
   setConnectionPermission,
   getUserPermissions,
+  getSetting,
+  setSetting,
+  getAllSettings,
   closeDb,
 };

@@ -2,18 +2,18 @@
 'use strict';
 
 var require$$3 = require('path');
-var require$$1$9 = require('eta');
-var require$$2$3 = require('node-cache');
+var require$$1$8 = require('eta');
+var require$$2$4 = require('node-cache');
 var require$$0$2 = require('crypto');
-var require$$1$1 = require('mongodb');
-var require$$2 = require('mongodb-connection-string-url');
+var require$$1 = require('mongodb');
+var require$$2$1 = require('mongodb-connection-string-url');
 var require$$0$1 = require('mongodb/lib/connection_string');
 var require$$0$4 = require('yargs');
-var require$$1$3 = require('yargs/helpers');
+var require$$1$2 = require('yargs/helpers');
 var require$$0$3 = require('openai');
-var require$$1$2 = require('zod');
-var require$$2$1 = require('openai/helpers/zod');
-var require$$1$4 = require('better-sqlite3');
+var require$$1$1 = require('zod');
+var require$$2$2 = require('openai/helpers/zod');
+var require$$1$3 = require('better-sqlite3');
 var require$$4 = require('fs');
 var require$$8$1 = require('fastify');
 var require$$9 = require('@fastify/view');
@@ -26,18 +26,18 @@ var require$$15 = require('@fastify/rate-limit');
 var require$$16 = require('@fastify/csrf-protection');
 var require$$17 = require('@fastify/multipart');
 var require$$0$5 = require('net');
-var require$$1$5 = require('tls');
+var require$$1$4 = require('tls');
 var require$$0$7 = require('stream');
 var require$$0$6 = require('mongodb/lib/utils');
-var require$$1$6 = require('stream/promises');
+var require$$1$5 = require('stream/promises');
 var require$$5 = require('stream-json/Parser');
 var require$$6 = require('stream-json/streamers/StreamValues');
 var require$$8 = require('os');
 var require$$0$8 = require('lodash');
-var require$$1$7 = require('assert');
-var require$$2$2 = require('mongodb-schema');
+var require$$1$6 = require('assert');
+var require$$2$3 = require('mongodb-schema');
 var require$$3$1 = require('stream-json/streamers/StreamArray');
-var require$$1$8 = require('util');
+var require$$1$7 = require('util');
 var require$$6$1 = require('strip-bom-stream');
 var require$$0$9 = require('papaparse');
 var require$$3$2 = require('stream-json');
@@ -145,7 +145,7 @@ function requireSrvResolver () {
 	hasRequiredSrvResolver = 1;
 
 	const { resolveSRVRecord, parseOptions } = require$$0$1;
-	const { ConnectionString } = require$$2;
+	const { ConnectionString } = require$$2$1;
 
 	async function createClientSafeConnectionString(cs) {
 	  try {
@@ -177,8 +177,8 @@ function requireConnectionManager () {
 	hasRequiredConnectionManager = 1;
 
 	const crypto = require$$0$2;
-	const { MongoClient } = require$$1$1;
-	const { ConnectionString } = require$$2;
+	const { MongoClient } = require$$1;
+	const { ConnectionString } = require$$2$1;
 	const { createClientSafeConnectionString } = requireSrvResolver();
 
 	function buildConnectionMetadata(uri, args) {
@@ -329,7 +329,7 @@ function requireInMemory () {
 }
 
 var version = "0.4.0-beta.1";
-var require$$1 = {
+var require$$2 = {
 	version: version};
 
 var genAi = {exports: {}};
@@ -342,8 +342,8 @@ function requireGenAi () {
 	(function (module) {
 
 		const { OpenAI } = require$$0$3;
-		const { z } = require$$1$2;
-		const { zodResponseFormat } = require$$2$1;
+		const { z } = require$$1$1;
+		const { zodResponseFormat } = require$$2$2;
 
 		const QUERY_SYSTEM_PROMPT = `
 You are an expert in MongoDB query language (MQL). You will be given user's request, collection name and schema from sampled documents.
@@ -627,9 +627,9 @@ function requireCli () {
 	hasRequiredCli = 1;
 
 	const yargs = require$$0$4;
-	const { hideBin } = require$$1$3;
-	const { ConnectionString } = require$$2;
-	const pkgJson = require$$1;
+	const { hideBin } = require$$1$2;
+	const { ConnectionString } = require$$2$1;
+	const pkgJson = require$$2;
 	const { AGGREGATION_SYSTEM_PROMPT, QUERY_SYSTEM_PROMPT } = requireGenAi();
 
 	function readCliArgs() {
@@ -769,7 +769,7 @@ function requireDb () {
 
 	const { AUTH_PBKDF2_ITERATIONS, AUTH_PBKDF2_KEY_LENGTH, AUTH_PBKDF2_DIGEST, USERNAME_PATTERN, SESSION_DURATION_HOURS } = requireConstants();
 
-	const Database = require$$1$4;
+	const Database = require$$1$3;
 	const crypto = require$$0$2;
 	const path = require$$3;
 
@@ -825,6 +825,11 @@ function requireDb () {
     );
 
     CREATE TABLE IF NOT EXISTS setup_state (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS app_settings (
       key TEXT PRIMARY KEY,
       value TEXT NOT NULL
     );
@@ -981,6 +986,29 @@ function requireDb () {
 	  }
 	}
 
+	// ─── App Settings ───
+	function getSetting(key) {
+	  const d = getDb();
+	  const row = d.prepare('SELECT value FROM app_settings WHERE key = ?').get(key);
+	  if (!row) return undefined;
+	  try { return JSON.parse(row.value); } catch (_) { return row.value; }
+	}
+
+	function setSetting(key, value) {
+	  const d = getDb();
+	  d.prepare('INSERT OR REPLACE INTO app_settings (key, value) VALUES (?, ?)').run(key, JSON.stringify(value));
+	}
+
+	function getAllSettings() {
+	  const d = getDb();
+	  const rows = d.prepare('SELECT key, value FROM app_settings').all();
+	  const result = {};
+	  for (const row of rows) {
+	    try { result[row.key] = JSON.parse(row.value); } catch (_) { result[row.key] = row.value; }
+	  }
+	  return result;
+	}
+
 	db_1 = {
 	  getDb,
 	  isFirstRun,
@@ -998,6 +1026,9 @@ function requireDb () {
 	  cleanExpiredSessions,
 	  setConnectionPermission,
 	  getUserPermissions,
+	  getSetting,
+	  setSetting,
+	  getAllSettings,
 	  closeDb,
 	};
 	return db_1;
@@ -1391,7 +1422,7 @@ function requireCreateMongoSocket () {
 	hasRequiredCreateMongoSocket = 1;
 
 	const net = require$$0$5;
-	const tls = require$$1$5;
+	const tls = require$$1$4;
 	const { SOCKET_KEEPALIVE_MS, SOCKET_TIMEOUT_MS } = requireConstants();
 
 	function isTrue(v) {
@@ -1609,18 +1640,24 @@ function requireSettings () {
 	hasRequiredSettings = 1;
 
 	const { requireRole } = requireRequireRole();
-	const pkgJson = require$$1;
+	const { getSetting, setSetting, getAllSettings } = requireDb();
+	const pkgJson = require$$2;
 
 	settings = function settingsRoutes(fastify, opts, done) {
 	  const args = fastify.args;
 
-	  const settings = {
-	    enableGenAIFeatures: args.enableGenAiFeatures,
-	    enableGenAISampleDocumentPassing: args.enableGenAiSampleDocuments,
-	  };
-
-	  if (args.enableEditConnections) {
-	    settings.enableCreatingNewConnections = true;
+	  // Load persisted settings, merge with defaults from CLI args
+	  function getSettings() {
+	    const persisted = getAllSettings();
+	    return {
+	      enableGenAIFeatures: persisted.enableGenAIFeatures ?? args.enableGenAiFeatures,
+	      enableGenAISampleDocumentPassing: persisted.enableGenAISampleDocumentPassing ?? args.enableGenAiSampleDocuments,
+	      enableCreatingNewConnections: args.enableEditConnections || false,
+	      optInDataExplorerGenAIFeatures: persisted.optInDataExplorerGenAIFeatures ?? false,
+	      theme: persisted.theme ?? 'DARK',
+	      defaultSort: persisted.defaultSort ?? null,
+	      ...persisted,
+	    };
 	  }
 
 	  fastify.get('/version', (request, reply) => {
@@ -1639,6 +1676,7 @@ function requireSettings () {
 	      return reply.status(404).send({ message: 'Project not found' });
 	    }
 
+	    const settings = getSettings();
 	    reply.send({
 	      orgId: args.orgId,
 	      projectId: args.projectId,
@@ -1649,7 +1687,7 @@ function requireSettings () {
 	        enableGenAIFeaturesAtlasProject: settings.enableGenAIFeatures,
 	        enableGenAISampleDocumentPassing: settings.enableGenAISampleDocumentPassing,
 	        enableGenAISampleDocumentPassingOnAtlasProject: settings.enableGenAISampleDocumentPassing,
-	        optInDataExplorerGenAIFeatures: settings.optInDataExplorerGenAIFeatures ?? false,
+	        optInDataExplorerGenAIFeatures: settings.optInDataExplorerGenAIFeatures,
 	        cloudFeatureRolloutAccess: {
 	          GEN_AI_COMPASS: settings.enableGenAIFeatures,
 	        },
@@ -1658,21 +1696,19 @@ function requireSettings () {
 	  });
 
 	  fastify.get('/settings', (request, reply) => {
-	    reply.send(settings);
+	    reply.send(getSettings());
 	  });
 
-	  fastify.post(
-	    '/settings/optInDataExplorerGenAIFeatures',
-	    { preHandler: requireRole('admin') },
-	    (request, reply) => {
-	      const { value } = request.body || {};
-	      if (typeof value !== 'boolean') {
-	        return reply.status(400).send({ error: 'value must be a boolean' });
-	      }
-	      settings.optInDataExplorerGenAIFeatures = value;
-	      reply.send({ ok: true });
+	  // Generic settings update — persists any key/value pair
+	  fastify.post('/settings/:key', (request, reply) => {
+	    const { key } = request.params;
+	    const { value } = request.body || {};
+	    if (value === undefined) {
+	      return reply.status(400).send({ error: 'value is required' });
 	    }
-	  );
+	    setSetting(key, value);
+	    reply.send({ ok: true });
+	  });
 
 	  done();
 	};
@@ -1879,7 +1915,7 @@ const {
   MaxKey,
   serialize,
   deserialize,
-} = require$$1$1.BSON;
+} = require$$1.BSON;
 
 var bson = /*#__PURE__*/Object.freeze({
 	__proto__: null,
@@ -1895,7 +1931,7 @@ var bson = /*#__PURE__*/Object.freeze({
 	ObjectId: ObjectId,
 	Timestamp: Timestamp,
 	UUID: UUID,
-	default: require$$1$1.BSON,
+	default: require$$1.BSON,
 	deserialize: deserialize,
 	serialize: serialize
 });
@@ -2107,7 +2143,7 @@ function requireExportJson () {
 	exportJson.exportJSONFromAggregation = exportJSONFromAggregation;
 	exportJson.exportJSONFromQuery = exportJSONFromQuery;
 	const stream_1 = require$$0$7;
-	const promises_1 = require$$1$6;
+	const promises_1 = require$$1$5;
 	const bson_1 = require$$0;
 	const mongodb_ns_1 = __importDefault(requireMongodbNs());
 	const hadron_document_1 = requireHadronDocument();
@@ -2241,7 +2277,7 @@ function requireCsvUtils () {
 	csvUtils.isCompatibleCSVFieldType = isCompatibleCSVFieldType;
 	csvUtils.findBrokenCSVTypeExample = findBrokenCSVTypeExample;
 	const lodash_1 = __importDefault(require$$0$8);
-	const assert_1 = __importDefault(require$$1$7);
+	const assert_1 = __importDefault(require$$1$6);
 	const bson_1 = require$$0;
 	function formatCSVValue(value, { delimiter, escapeLinebreaks = false, }) {
 	    value = value.replace(/"/g, '""');
@@ -2991,7 +3027,7 @@ function requireExportCsv () {
 	exportCsv.exportCSVFromQuery = exportCSVFromQuery;
 	const fs_1 = __importDefault(require$$4);
 	const bson_1 = require$$0;
-	const promises_1 = require$$1$6;
+	const promises_1 = require$$1$5;
 	const stream_1 = require$$0$7;
 	const mongodb_ns_1 = __importDefault(requireMongodbNs());
 	const Parser_1 = __importDefault(require$$5);
@@ -3237,8 +3273,8 @@ function requireGatherFields () {
 	gatherFields.createProjectionFromSchemaFields = createProjectionFromSchemaFields;
 	gatherFields.gatherFieldsFromQuery = gatherFieldsFromQuery;
 	const stream_1 = require$$0$7;
-	const promises_1 = require$$1$6;
-	const mongodb_schema_1 = require$$2$2;
+	const promises_1 = require$$1$5;
+	const mongodb_schema_1 = require$$2$3;
 	const mongodb_ns_1 = __importDefault(requireMongodbNs());
 	const hadron_document_1 = requireHadronDocument();
 	const logger_1 = requireLogger();
@@ -3647,7 +3683,7 @@ function requireUtf8Validator () {
 	Object.defineProperty(utf8Validator, "__esModule", { value: true });
 	utf8Validator.Utf8Validator = void 0;
 	const stream_1 = require$$0$7;
-	const util_1 = __importDefault(require$$1$8);
+	const util_1 = __importDefault(require$$1$7);
 	class Utf8Validator extends stream_1.Transform {
 	    constructor() {
 	        super(...arguments);
@@ -4089,7 +4125,7 @@ function requireGuessFiletype () {
 	Object.defineProperty(guessFiletype, "__esModule", { value: true });
 	guessFiletype.guessFileType = guessFileType;
 	const stream_1 = require$$0$7;
-	const util_1 = __importDefault(require$$1$8);
+	const util_1 = __importDefault(require$$1$7);
 	const papaparse_1 = __importDefault(require$$0$9);
 	const stream_json_1 = __importDefault(require$$3$2);
 	const logger_1 = requireLogger();
@@ -4521,7 +4557,7 @@ function requireAnalyzeCsvFields () {
 	Object.defineProperty(analyzeCsvFields, "__esModule", { value: true });
 	analyzeCsvFields.analyzeCSVFields = analyzeCSVFields;
 	const stream_1 = require$$0$7;
-	const promises_1 = require$$1$6;
+	const promises_1 = require$$1$5;
 	const papaparse_1 = __importDefault(require$$0$9);
 	const strip_bom_stream_1 = __importDefault(require$$6$1);
 	const csv_utils_1 = requireCsvUtils();
@@ -4875,8 +4911,8 @@ function requireApp () {
 	hasRequiredApp = 1;
 
 	const path = require$$3;
-	const { Eta } = require$$1$9;
-	const NodeCache = require$$2$3;
+	const { Eta } = require$$1$8;
+	const NodeCache = require$$2$4;
 	const { EXPORT_CACHE_TTL } = requireConstants();
 	const { ConnectionManager } = requireConnectionManager();
 	const { InMemoryStorage } = requireInMemory();
