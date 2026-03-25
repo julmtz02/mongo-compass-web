@@ -9,7 +9,7 @@ module.exports = function connectionRoutes(fastify, opts, done) {
   fastify.get(
     '/explorer/v1/groups/:projectId/clusters/connectionInfo',
     async (request, reply) => {
-      const connections = await connectionManager.getAllConnections();
+      const connections = await connectionManager.getAllConnections(false);
       reply.send(connections);
     }
   );
