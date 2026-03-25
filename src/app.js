@@ -35,17 +35,13 @@ fastify.register(require('@fastify/static'), {
   decorateReply: false,
 });
 
-// Serve favicon from src root
+// Serve dist files (compass.js, images, templates)
 fastify.register(require('@fastify/static'), {
   root: __dirname,
   prefix: '/',
+  serve: true,
   decorateReply: false,
-  serve: false,
-});
-
-// Manual favicon route
-fastify.get('/favicon.svg', (request, reply) => {
-  return reply.sendFile('favicon.svg', __dirname);
+  index: false,
 });
 
 fastify.register(require('@fastify/websocket'));
@@ -57,11 +53,12 @@ fastify.register(require('@fastify/helmet'), {
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      connectSrc: ["'self'", "wss:", "ws:"],
-      imgSrc: ["'self'", "data:"],
-      fontSrc: ["'self'", "https://fonts.cdnfonts.com"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.cdnfonts.com"],
+      connectSrc: ["'self'", "wss:", "ws:", "https:"],
+      imgSrc: ["'self'", "data:", "blob:"],
+      fontSrc: ["'self'", "https://fonts.cdnfonts.com", "data:"],
+      workerSrc: ["'self'", "blob:"],
     },
   },
 });
