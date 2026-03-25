@@ -4911,14 +4911,21 @@ function requireApp () {
 	  decorateReply: false,
 	});
 
-	// Serve dist files (compass.js, images, templates)
+	// Serve dist files (compass.js, images, favicon)
 	fastify.register(require$$10, {
 	  root: __dirname,
 	  prefix: '/',
-	  serve: true,
-	  decorateReply: false,
-	  index: false,
+	  serve: false,
+	  decorateReply: true,
 	});
+
+	// Explicit routes for dist assets
+	fastify.get('/compass.js', (req, reply) => reply.sendFile('compass.js'));
+	fastify.get('/compass.js.LICENSE.txt', (req, reply) => reply.sendFile('compass.js.LICENSE.txt'));
+	fastify.get('/favicon.svg', (req, reply) => reply.sendFile('favicon.svg'));
+	fastify.get('/680f69f3c2e6b90c1812.png', (req, reply) => reply.sendFile('680f69f3c2e6b90c1812.png'));
+	fastify.get('/7ea3a6d428136b87ab95.png', (req, reply) => reply.sendFile('7ea3a6d428136b87ab95.png'));
+	fastify.get('/a4e0eb7ad904a4858361.svg', (req, reply) => reply.sendFile('a4e0eb7ad904a4858361.svg'));
 
 	fastify.register(require$$11);
 	fastify.register(require$$12);
