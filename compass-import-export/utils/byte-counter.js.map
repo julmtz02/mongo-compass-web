@@ -1,0 +1,1 @@
+{"version":3,"file":"byte-counter.js","sourceRoot":"","sources":["../../src/utils/byte-counter.ts"],"names":[],"mappings":";;;AAAA,mCAAmC;AAEnC,MAAa,WAAY,SAAQ,kBAAS;IAA1C;;QACE,UAAK,GAAG,CAAC,CAAC;IAUZ,CAAC;IARC,UAAU,CACR,KAAa,EACb,GAAY,EACZ,EAA+C;QAE/C,IAAI,CAAC,KAAK,IAAI,KAAK,CAAC,MAAM,CAAC;QAC3B,EAAE,CAAC,IAAI,EAAE,KAAK,CAAC,CAAC;IAClB,CAAC;CACF;AAXD,kCAWC"}

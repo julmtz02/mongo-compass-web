@@ -1,0 +1,1 @@
+{"version":3,"file":"byte-counter.d.ts","sourceRoot":"","sources":["../../src/utils/byte-counter.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,SAAS,EAAE,MAAM,QAAQ,CAAC;AAEnC,qBAAa,WAAY,SAAQ,SAAS;IACxC,KAAK,SAAK;IAEV,UAAU,CACR,KAAK,EAAE,MAAM,EACb,GAAG,EAAE,OAAO,EACZ,EAAE,EAAE,CAAC,GAAG,EAAE,IAAI,GAAG,KAAK,EAAE,KAAK,CAAC,EAAE,MAAM,KAAK,IAAI;CAKlD"}

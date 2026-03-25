@@ -1,0 +1,1 @@
+{"version":3,"file":"import-preview-loader.d.ts","sourceRoot":"","sources":["../../src/components/import-preview-loader.tsx"],"names":[],"mappings":"AAAA,OAAO,KAAK,MAAM,OAAO,CAAC;AA8C1B,wBAAgB,mBAAmB,CAAC,EAClC,iBAAiB,EACjB,qBAAqB,EACrB,cAAc,GACf,EAAE;IACD,iBAAiB,EAAE,MAAM,CAAC;IAC1B,qBAAqB,EAAE,MAAM,CAAC;IAC9B,cAAc,EAAE,MAAM,IAAI,CAAC;CAC5B,qBA6BA;AAUD;;GAEG;;;;;AACH,wBAEwB"}

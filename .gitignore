@@ -89,7 +89,6 @@ out
 
 # Nuxt.js build / generate output
 .nuxt
-dist
 
 # Gatsby files
 .cache/
@@ -133,9 +132,8 @@ dist
 .vscode/
 
 out/
-dist/
-compass-import-export/
 auth-ui/node_modules/
+compass/
 
 run.sh
 connections.json

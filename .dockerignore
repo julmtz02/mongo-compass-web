@@ -1,5 +1,9 @@
 node_modules
 auth-ui/node_modules
+compass/
+src/
+vendors/
+images/
 .vscode
 .omc
 .claude

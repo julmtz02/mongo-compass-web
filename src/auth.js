@@ -16,11 +16,12 @@ const PUBLIC_PATHS = [
   '/api/auth/setup',
   '/api/auth/status',
   '/setup',
+  '/version',
   '/favicon.svg',
 ];
 
 function isApiOrWsRequest(urlPath) {
-  return isApiOrWsRequest(urlPath);
+  return urlPath.startsWith('/api/') || urlPath.startsWith('/ws') || urlPath.startsWith('/clusterConnection');
 }
 
 function registerAuth(instance) {
