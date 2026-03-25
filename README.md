@@ -8,9 +8,9 @@ A hardened, self-hosted web interface for managing multiple MongoDB databases fr
 |-------|-------|-------------|
 | ![Login](/images/screenshot-login.png) | ![Setup](/images/screenshot-setup.png) | ![Admin](/images/screenshot-admin.png) |
 
-<p align="center">
-  <img src="/images/screenshot-mobile-login.png" alt="Mobile Login" width="250">
-</p>
+| Collections | Documents | Aggregation |
+|-------------|-----------|-------------|
+| ![Collections](/images/screenshot-collections.png) | ![Documents](/images/screenshot-documents.png) | ![Aggregation](/images/screenshot-aggregation.png) |
 
 ## Features
 
