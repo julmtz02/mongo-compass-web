@@ -49,9 +49,8 @@ async function handleConnection(fastify, socket, req) {
     // First message contains connection options
     const { tls: useSecureConnection, ...connectOptions } = decodeMessage(message);
 
-    // SSRF protection
-    const allowedHosts = await buildAllowedHosts(mongoURIs, fastify.connectionManager);
-    if (!validateHost(connectOptions.host, allowedHosts)) {
+    // SSRF protection - block private/internal IPs only
+    if (!validateHost(connectOptions.host)) {
       req.log.error('SSRF blocked: %s', connectOptions.host);
       socket.close(1008, 'Host not allowed');
       return;
