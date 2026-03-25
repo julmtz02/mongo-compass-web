@@ -1646,17 +1646,24 @@ function requireSettings () {
 	settings = function settingsRoutes(fastify, opts, done) {
 	  const args = fastify.args;
 
-	  // Load persisted settings, merge with defaults from CLI args
-	  function getSettings() {
+	  // Compass-recognized preference keys only
+	  function getCompassPreferences() {
 	    const persisted = getAllSettings();
 	    return {
 	      enableGenAIFeatures: persisted.enableGenAIFeatures ?? args.enableGenAiFeatures,
 	      enableGenAISampleDocumentPassing: persisted.enableGenAISampleDocumentPassing ?? args.enableGenAiSampleDocuments,
 	      enableCreatingNewConnections: args.enableEditConnections || false,
 	      optInDataExplorerGenAIFeatures: persisted.optInDataExplorerGenAIFeatures ?? false,
+	    };
+	  }
+
+	  // All settings including user preferences (theme, sort, etc.)
+	  function getAllUserSettings() {
+	    const persisted = getAllSettings();
+	    return {
+	      ...getCompassPreferences(),
 	      theme: persisted.theme ?? 'DARK',
 	      defaultSort: persisted.defaultSort ?? null,
-	      ...persisted,
 	    };
 	  }
 
@@ -1676,27 +1683,25 @@ function requireSettings () {
 	      return reply.status(404).send({ message: 'Project not found' });
 	    }
 
-	    const settings = getSettings();
+	    const prefs = getCompassPreferences();
 	    reply.send({
 	      orgId: args.orgId,
 	      projectId: args.projectId,
 	      appName: args.appName,
 	      preferences: {
-	        ...settings,
-	        enableGenAIFeaturesAtlasOrg: settings.enableGenAIFeatures,
-	        enableGenAIFeaturesAtlasProject: settings.enableGenAIFeatures,
-	        enableGenAISampleDocumentPassing: settings.enableGenAISampleDocumentPassing,
-	        enableGenAISampleDocumentPassingOnAtlasProject: settings.enableGenAISampleDocumentPassing,
-	        optInDataExplorerGenAIFeatures: settings.optInDataExplorerGenAIFeatures,
+	        ...prefs,
+	        enableGenAIFeaturesAtlasOrg: prefs.enableGenAIFeatures,
+	        enableGenAIFeaturesAtlasProject: prefs.enableGenAIFeatures,
+	        enableGenAISampleDocumentPassingOnAtlasProject: prefs.enableGenAISampleDocumentPassing,
 	        cloudFeatureRolloutAccess: {
-	          GEN_AI_COMPASS: settings.enableGenAIFeatures,
+	          GEN_AI_COMPASS: prefs.enableGenAIFeatures,
 	        },
 	      },
 	    });
 	  });
 
 	  fastify.get('/settings', (request, reply) => {
-	    reply.send(getSettings());
+	    reply.send(getAllUserSettings());
 	  });
 
 	  // Generic settings update — persists any key/value pair
