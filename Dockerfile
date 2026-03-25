@@ -20,9 +20,11 @@ RUN NODE_ENV=production pnpm run build-server:production
 
 # Build auth UI (React + Tailwind)
 FROM node:22-alpine AS auth
-WORKDIR /build
-COPY auth-ui/ ./auth-ui/
-RUN cd auth-ui && npm install && npm run build
+WORKDIR /build/auth-ui
+COPY auth-ui/package.json auth-ui/package-lock.json* ./
+RUN npm install
+COPY auth-ui/ ./
+RUN mkdir -p /build/src/static && npm run build
 # Output: /build/src/static/auth/
 
 # Final runtime image
