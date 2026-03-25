@@ -1,0 +1,59 @@
+services:
+  caddy:
+    image: caddy:2-alpine
+    container_name: compass-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - compass
+
+  compass:
+    build: .
+    container_name: compass-web
+    restart: unless-stopped
+    environment:
+      - CW_MONGO_URI=mongodb://mongo:27017
+      - CW_HOST=0.0.0.0
+      - CW_MASTER_PASSWORD=${CW_MASTER_PASSWORD:?Set CW_MASTER_PASSWORD}
+      - CW_DB_PATH=/app/data/compass-web.db
+    depends_on:
+      mongo:
+        condition: service_healthy
+    expose:
+      - "8080"
+    volumes:
+      - compass_data:/app/data
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  mongo:
+    image: mongo:7-jammy
+    container_name: compass-mongo
+    restart: unless-stopped
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    command: ["mongod", "--wiredTigerCacheSizeGB", "0.25"]
+
+volumes:
+  compass_data:
+  mongo_data:
+  caddy_data:
+  caddy_config:
