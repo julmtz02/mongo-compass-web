@@ -3,9 +3,9 @@ services:
     build: .
     restart: unless-stopped
     environment:
-      - CW_MONGO_URI=${CW_MONGO_URI:?Set CW_MONGO_URI env var}
       - CW_HOST=0.0.0.0
-      - CW_MASTER_PASSWORD=${CW_MASTER_PASSWORD:?Set CW_MASTER_PASSWORD env var}
+      - CW_MASTER_PASSWORD=${CW_MASTER_PASSWORD:-changeme}
+      - CW_ENABLE_EDIT_CONNECTIONS=true
       - CW_DB_PATH=/app/data/compass-web.db
     expose:
       - "8080"

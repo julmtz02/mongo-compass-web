@@ -78,8 +78,8 @@ function readCliArgs() {
     })
     .options('enable-edit-connections', {
       type: 'boolean',
-      description: 'Allow user to edit connections in the UI',
-      default: false,
+      description: 'Allow user to add/edit/remove connections from the UI',
+      default: true,
     })
     .options('master-password', {
       type: 'string',
@@ -88,7 +88,10 @@ function readCliArgs() {
     .parse();
 
   if (args.enableEditConnections && !args.masterPassword) {
-    throw new Error('--master-password is required when --enable-edit-connections is set');
+    const crypto = require('crypto');
+    args.masterPassword = crypto.randomBytes(32).toString('hex');
+    console.warn('No master password set. Generated a random one for this session.');
+    console.warn('To persist encrypted connections across restarts, set CW_MASTER_PASSWORD env var.');
   }
 
   /**
@@ -121,7 +124,7 @@ function readCliArgs() {
   }
 
   if (mongoURIs.length === 0 && !args.enableEditConnections) {
-    console.warn('MongoDB urls are not specified');
+    console.warn('No MongoDB URIs specified and connection editing is disabled. Users won\'t be able to connect to any database.');
   }
 
   return { ...args, mongoURIs };
