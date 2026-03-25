@@ -21,7 +21,21 @@ const PUBLIC_PATHS = [
 ];
 
 function isApiOrWsRequest(urlPath) {
-  return urlPath.startsWith('/api/') || urlPath.startsWith('/ws') || urlPath.startsWith('/clusterConnection');
+  return urlPath.startsWith('/api/') ||
+    urlPath.startsWith('/ws') ||
+    urlPath.startsWith('/clusterConnection') ||
+    urlPath.startsWith('/explorer/') ||
+    urlPath.startsWith('/settings') ||
+    urlPath.startsWith('/cloud-mongodb-com/') ||
+    urlPath.startsWith('/projectId') ||
+    urlPath.startsWith('/export') ||
+    urlPath.startsWith('/import') ||
+    urlPath.startsWith('/gather-fields') ||
+    urlPath.startsWith('/guess-filetype') ||
+    urlPath.startsWith('/upload-') ||
+    urlPath.startsWith('/list-csv') ||
+    urlPath.startsWith('/analyze-csv') ||
+    urlPath.startsWith('/ai/');
 }
 
 function registerAuth(instance) {
