@@ -1375,19 +1375,29 @@ function requireSsrfGuard () {
 	  return hostString.split(':')[0];
 	}
 
+	// Extract base domain: "cluster.wfcmz9q.mongodb.net" -> "wfcmz9q.mongodb.net"
+	function getBaseDomain(hostname) {
+	  const parts = hostname.split('.');
+	  if (parts.length <= 2) return hostname;
+	  return parts.slice(-3).join('.'); // last 3 parts: xxx.mongodb.net
+	}
+
 	async function buildAllowedHosts(mongoURIs, connectionManager) {
 	  const hosts = new Set();
+	  const domains = new Set();
 
 	  // Add preset hosts from CLI/env
 	  for (const { uri } of mongoURIs) {
 	    try {
 	      for (const host of (uri.hosts || [])) {
-	        hosts.add(extractHostname(host));
+	        const hostname = extractHostname(host);
+	        hosts.add(hostname);
+	        domains.add(getBaseDomain(hostname));
 	      }
 	    } catch (_) {}
 	  }
 
-	  // Add hosts from user-saved connections
+	  // Add hosts and domains from user-saved connections
 	  if (connectionManager) {
 	    try {
 	      const connections = await connectionManager.getAllConnections(false);
@@ -1398,6 +1408,7 @@ function requireSsrfGuard () {
 	            const hostname = extractHostname(host);
 	            if (!isBlockedHost(hostname)) {
 	              hosts.add(hostname);
+	              domains.add(getBaseDomain(hostname));
 	            }
 	          }
 	        } catch (_) {}
@@ -1405,12 +1416,17 @@ function requireSsrfGuard () {
 	    } catch (_) {}
 	  }
 
-	  return hosts;
+	  return { hosts, domains };
 	}
 
-	function validateHost(host, allowedHosts) {
+	function validateHost(host, allowedData) {
 	  if (isBlockedHost(host)) return false;
-	  return allowedHosts.has(host);
+	  // Exact match
+	  if (allowedData.hosts.has(host)) return true;
+	  // Domain match (for SRV resolved hosts like shard-00-01.wfcmz9q.mongodb.net)
+	  const baseDomain = getBaseDomain(host);
+	  if (allowedData.domains.has(baseDomain)) return true;
+	  return false;
 	}
 
 	ssrfGuard = { buildAllowedHosts, validateHost };
