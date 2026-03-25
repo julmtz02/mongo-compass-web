@@ -11,6 +11,9 @@ services:
       - "8080"
     volumes:
       - compass_data:/app/data
+    networks:
+      - default
+      - easypanel
     deploy:
       resources:
         limits:
@@ -18,3 +21,7 @@ services:
 
 volumes:
   compass_data:
+
+networks:
+  easypanel:
+    external: true
