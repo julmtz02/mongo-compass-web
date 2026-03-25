@@ -8,9 +8,9 @@ A hardened, self-hosted web interface for managing multiple MongoDB databases fr
 |-------|-------|-------------|
 | ![Login](/images/screenshot-login.png) | ![Setup](/images/screenshot-setup.png) | ![Admin](/images/screenshot-admin.png) |
 
-| Collections | Documents | Aggregation |
-|-------------|-----------|-------------|
-| ![Collections](/images/screenshot-collections.png) | ![Documents](/images/screenshot-documents.png) | ![Aggregation](/images/screenshot-aggregation.png) |
+| Documents & Queries | Aggregation Pipeline | Schema Analysis |
+|---------------------|----------------------|-----------------|
+| ![Documents](/images/screenshot-documents.png) | ![Aggregation](/images/screenshot-aggregation.png) | ![Schema](/images/screenshot-schema.png) |
 
 ## Features
 
