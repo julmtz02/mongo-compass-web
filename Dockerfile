@@ -5,8 +5,11 @@ RUN apk add --no-cache python3 make g++ git bash
 WORKDIR /app
 COPY . .
 
-# Init compass submodule and bootstrap
-RUN git submodule update --init --recursive --single-branch --depth 1
+# Clone compass dependency (submodule may not work in shallow clones)
+RUN if [ ! -d "compass/.git" ]; then \
+      rm -rf compass && \
+      git clone --depth 1 --single-branch https://github.com/haohanyang/compass.git compass; \
+    fi
 RUN bash bootstrap.sh
 
 # Install project dependencies
